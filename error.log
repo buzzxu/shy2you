@@ -1,2 +1,0 @@
-{"level":"ERROR","time":"2022-07-04 12:43:18","line":"logger/logger.go:89:github.com/buzzxu/ironman/logger.Error","msg":"http: Server closed"}
-{"level":"FATAL","time":"2022-07-05 23:58:39","line":"logger/logger.go:110:github.com/buzzxu/ironman/logger.Fatalf","msg":"Redis connect error.NOAUTH Authentication required."}

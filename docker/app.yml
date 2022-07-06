@@ -6,6 +6,7 @@ redis:
   db: 0
   poolSize: 100
 logger:
+  dir: logs
   maxSize: 50
   maxBackups: 30
   maxAge: 30

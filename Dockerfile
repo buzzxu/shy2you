@@ -32,7 +32,6 @@ RUN apt-get update && \
 	rm /etc/localtime && \
     ln -sv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
-    mkdir -p /data/images && \
     apt-get remove --purge -y wget build-essential pkg-config && \
     apt-get clean && \
     apt-get autoremove -y && \

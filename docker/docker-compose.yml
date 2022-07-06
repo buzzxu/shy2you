@@ -1,0 +1,18 @@
+version: '2.4'
+
+services:
+  shy2you:
+    image: buzzxu/shy2you:latest
+    container_name: shy2you
+    hostname: shy2you
+    mem_limit: 500m
+    cpu_count: 1
+    cpus: 0.3
+    ports:
+      - "3001:3000"
+    expose:
+      - 3000
+    command: --redis-addr redis:6379 --redis-password ${REDIS_PASSWORD}
+    restart: always
+    volumes:
+      - /data/logs/shy2you:/data/logs
