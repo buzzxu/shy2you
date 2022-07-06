@@ -26,7 +26,7 @@ func init() {
 }
 func Routers(e *echo.Echo) {
 	ironman.JwtConfig(middleware.DefaultSkipper)
-	e.GET("/ws/notify", ws.Notify)
-	e.POST("/ws/ping", ws.Ping)
+	e.GET("/notify/ws", ws.Notify)
+	e.POST("/notify/ping", ws.Ping)
 	//e.Use(middleware.JWTWithConfig(jwtConfig))
 }
