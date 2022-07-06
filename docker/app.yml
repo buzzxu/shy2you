@@ -1,0 +1,16 @@
+jwt:
+  signingMethod: HS512
+redis:
+  addr: host.docker.internal:6379
+  password: none
+  db: 0
+  poolSize: 100
+logger:
+  maxSize: 50
+  maxBackups: 30
+  maxAge: 30
+  console: true
+  json: true
+  loggers:
+    ws:
+      file: ws.log
