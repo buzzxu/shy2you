@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/buzzxu/ironman"
+	"github.com/buzzxu/ironman/logger"
 	"github.com/go-redis/redis/v8"
 	"shy2you/api/ws"
 	"shy2you/pkg/types"
@@ -33,6 +34,7 @@ func Start() {
 		if err != nil {
 			break
 		}
+		logger.Infof("receive new message")
 		for _, result := range datas {
 			for _, message := range result.Messages {
 				messageID := message.ID

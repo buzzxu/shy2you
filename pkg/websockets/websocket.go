@@ -52,7 +52,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 		return nil
 	}
 	message := string(data[:])
-	logger.Of("ws").Info("say: " + message)
+	logger.Infof("say: %s", message)
 	for con, session := range s.Sessions {
 		// UserId not null
 		if say.UserId != "" && session.UserId == say.UserId {
