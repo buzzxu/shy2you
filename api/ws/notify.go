@@ -5,15 +5,19 @@ import (
 	boystypes "github.com/buzzxu/boys/types"
 	"github.com/buzzxu/ironman"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/websocket"
 	echo "github.com/labstack/echo/v4"
-	"golang.org/x/net/websocket"
+	"net/http"
 	"shy2you/pkg/auth"
 	"shy2you/pkg/types"
 	"shy2you/pkg/websockets"
 	"strconv"
 )
 
-var SessionsPool = websockets.New()
+var (
+	SessionsPool = websockets.New()
+	upgrader     = websocket.Upgrader{}
+)
 
 type PingSendMessage struct {
 	UserId  int64  `json:"userId"`
@@ -42,25 +46,29 @@ func Notify(c echo.Context) error {
 		var session *websockets.Session
 		session, err = auth.GetUserSession(claims)
 		if err == nil {
-			websocket.Handler(func(ws *websocket.Conn) {
+			upgrader.CheckOrigin = func(r *http.Request) bool {
+				return true
+			}
+			ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+			if err != nil {
+				return err
+			}
+			SessionsPool.Lock()
+			SessionsPool.Sessions[ws] = *session
+			defer func(connection *websocket.Conn) {
 				SessionsPool.Lock()
-				SessionsPool.Sessions[ws] = *session
-				defer func(connection *websocket.Conn) {
-					SessionsPool.Lock()
-					delete(SessionsPool.Sessions, connection)
-					SessionsPool.Unlock()
-				}(ws)
+				delete(SessionsPool.Sessions, connection)
 				SessionsPool.Unlock()
-				defer ws.Close()
-				msg := ""
-				for {
-					if err := websocket.Message.Receive(ws, &msg); err != nil {
-						c.Logger().Error(err)
-						return
-					}
-					fmt.Println(msg)
+			}(ws)
+			SessionsPool.Unlock()
+			defer ws.Close()
+			for {
+				_, msg, err := ws.ReadMessage()
+				if err != nil {
+					c.Logger().Error(err)
 				}
-			}).ServeHTTP(c.Response(), c.Request())
+				fmt.Println(msg)
+			}
 		}
 
 	}

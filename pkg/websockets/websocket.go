@@ -3,7 +3,7 @@ package websockets
 import (
 	"encoding/json"
 	"github.com/buzzxu/ironman/logger"
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 	"shy2you/pkg/types"
 	"sync"
 )
@@ -31,7 +31,7 @@ func (s *SessionPool) Send(userId, message string) error {
 	defer s.RUnlock()
 	for con, session := range s.Sessions {
 		if session.UserId == userId {
-			if err := websocket.Message.Send(con, message); err != nil {
+			if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 				return err
 			}
 			break
@@ -56,7 +56,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 	for con, session := range s.Sessions {
 		// UserId not null
 		if say.UserId != "" && session.UserId == say.UserId {
-			if err := websocket.Message.Send(con, message); err != nil {
+			if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 				return err
 			}
 			break
@@ -65,7 +65,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 			case 1:
 				//tenantId
 				if session.TenantId == say.CompanyId {
-					if err := websocket.Message.Send(con, message); err != nil {
+					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
 					}
 				}
@@ -73,7 +73,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 			case 2:
 				//companyId
 				if session.CompanyId == say.CompanyId {
-					if err := websocket.Message.Send(con, message); err != nil {
+					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
 					}
 				}
@@ -81,7 +81,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 			case 3:
 				//supplierId
 				if session.SupplierId == say.CompanyId {
-					if err := websocket.Message.Send(con, message); err != nil {
+					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
 					}
 				}
@@ -94,8 +94,8 @@ func (s *SessionPool) Say(say *types.Say) error {
 func (s *SessionPool) SendAll(message string) error {
 	s.RLock()
 	defer s.RUnlock()
-	for session := range s.Sessions {
-		if err := websocket.Message.Send(session, message); err != nil {
+	for con, _ := range s.Sessions {
+		if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 			return err
 		}
 	}
