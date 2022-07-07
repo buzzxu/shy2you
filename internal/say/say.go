@@ -23,6 +23,7 @@ func Start() {
 	}
 	for {
 		var ctx = context.Background()
+		logger.Infof("Ready receive new message")
 		datas, err := ironman.Redis.XReadGroup(ctx, &redis.XReadGroupArgs{
 			Group:    group,
 			Consumer: "say",
@@ -32,6 +33,7 @@ func Start() {
 			NoAck:    false,
 		}).Result()
 		if err != nil {
+			logger.Errorf("receive new message error. %s", err.Error())
 			break
 		}
 		logger.Infof("receive new message")
