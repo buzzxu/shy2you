@@ -2,6 +2,7 @@ package websockets
 
 import (
 	"encoding/json"
+	"github.com/buzzxu/ironman/logger"
 	"golang.org/x/net/websocket"
 	"shy2you/pkg/types"
 	"sync"
@@ -47,9 +48,11 @@ func (s *SessionPool) Say(say *types.Say) error {
 		return err
 	}
 	if data == nil {
+		logger.Of("ws").Info("say nothing.")
 		return nil
 	}
 	message := string(data[:])
+	logger.Of("ws").Info("say: " + message)
 	for con, session := range s.Sessions {
 		// UserId not null
 		if say.UserId != "" && session.UserId == say.UserId {

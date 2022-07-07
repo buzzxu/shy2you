@@ -18,7 +18,7 @@ func init() {
 func Start() {
 	statusCmd := ironman.Redis.XGroupCreateMkStream(context.Background(), topic, group, "$")
 	if statusCmd.Err() != nil {
-
+		return
 	}
 	for {
 		var ctx = context.Background()

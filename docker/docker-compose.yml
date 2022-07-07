@@ -9,10 +9,10 @@ services:
     cpu_count: 1
     cpus: 0.3
     ports:
-      - 7589:3000
+      - 10031:3000
     expose:
       - 3000
     command: --redis-addr ${REDIS_URL} --redis-password ${REDIS_PASSWORD}
-#    restart: always
+    restart: always
     volumes:
       - /Users/xux/data/logs/shy2you:/data/logs

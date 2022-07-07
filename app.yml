@@ -1,13 +1,8 @@
 jwt:
   signingMethod: HS512
-#redis:
-#  addr: 127.0.0.1:6379
-#  password: none
-#  db: 0
-#  poolSize: 100
 redis:
-  addr: 59.110.7.76:6600
-  password: MNBV7QCvX9YX&UK8
+  addr: 192.168.1.2:6379
+  password: none
   db: 0
   poolSize: 100
 logger:
