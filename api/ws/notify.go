@@ -48,6 +48,16 @@ func Ping(c echo.Context) error {
 	return c.JSON(200, boystypes.ResultOf(200, true))
 }
 
+func Say(c echo.Context) error {
+	var say types.Say
+	if err := c.Bind(&say); err != nil {
+		return c.JSON(200, boystypes.ErrorOf(err))
+	}
+	c.Logger().Infof(" receive message userId: %s", say.UserId)
+	SessionsPool.Say(&say)
+	return c.JSON(200, boystypes.ResultOf(200, true))
+}
+
 func Notify(c echo.Context) error {
 	token, err := ironman.ParserTokenUnverified(c, echo.HeaderAuthorization, "")
 	if err != nil {
