@@ -16,7 +16,16 @@ import (
 
 var (
 	SessionsPool = websockets.New()
-	upgrader     = websocket.Upgrader{}
+	upgrader     = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			//r.Response.Header.Add("Access-Control-Allow-Origin", "*")
+			//r.Response.Header.Add("Access-Control-Allow-Methods", "GET, OPTIONS, HEAD, PUT, POST")
+			return true
+		},
+	}
+	corsHeaders = http.Header{}
 )
 
 type PingSendMessage struct {
@@ -24,6 +33,12 @@ type PingSendMessage struct {
 	Context string `json:"context"`
 }
 
+func init() {
+	corsHeaders.Add("Access-Control-Allow-Origin", "*")
+	corsHeaders.Add("Access-Control-Allow-Credentials", "*")
+	corsHeaders.Add("Access-Control-Expose-Headers:", "Content-Disposition, Authorization, Content-Type, x-requested-with, GET, POST, OPTIONS, PUT, DELETE")
+
+}
 func Ping(c echo.Context) error {
 	var msg PingSendMessage
 	if err := c.Bind(&msg); err != nil {
@@ -41,15 +56,11 @@ func Notify(c echo.Context) error {
 	}
 	if token.IsPresent() {
 		claims := token.Get().(*jwt.Token).Claims.(*types.Claims)
-		print(claims.Subject)
 		//find user info
 		var session *websockets.Session
 		session, err = auth.GetUserSession(claims)
 		if err == nil {
-			upgrader.CheckOrigin = func(r *http.Request) bool {
-				return true
-			}
-			ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+			ws, err := upgrader.Upgrade(c.Response(), c.Request(), corsHeaders)
 			if err != nil {
 				return err
 			}

@@ -26,7 +26,6 @@ func init() {
 }
 func Routers(e *echo.Echo) {
 	ironman.JwtConfig(middleware.DefaultSkipper)
-	e.Use(middleware.CORS())
 	e.GET("/notify/ws", ws.Notify)
 	e.POST("/notify/ping", ws.Ping)
 	//e.Use(middleware.JWTWithConfig(jwtConfig))
