@@ -5,7 +5,6 @@ import (
 	"github.com/buzzxu/ironman"
 	"github.com/buzzxu/ironman/conf"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"runtime"
 	"shy2you/api"
 )
@@ -16,7 +15,6 @@ func main() {
 	// 关闭redis
 	defer ironman.Redis.Close()
 	e := echo.New()
-	e.Use(middleware.Recover())
 	api.Routers(e)
 	ironman.Server(e)
 }
