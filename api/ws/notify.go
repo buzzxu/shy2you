@@ -35,9 +35,8 @@ type PingSendMessage struct {
 
 func init() {
 	corsHeaders.Add("Access-Control-Allow-Origin", "*")
-	corsHeaders.Add("Access-Control-Allow-Credentials", "*")
-	corsHeaders.Add("Access-Control-Expose-Headers:", "Content-Disposition, Authorization, Content-Type, x-requested-with, GET, POST, OPTIONS, PUT, DELETE")
-
+	corsHeaders.Add("Access-Control-Allow-Credentials", "true")
+	corsHeaders.Add("Access-Control-Expose-Headers", "Content-Disposition, Authorization, Content-Type, x-requested-with, GET, POST, OPTIONS, PUT, DELETE")
 }
 func Ping(c echo.Context) error {
 	var msg PingSendMessage
