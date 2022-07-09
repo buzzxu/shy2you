@@ -18,3 +18,14 @@ type (
 		Data      interface{} `json:"data"`
 	}
 )
+
+func (s *Say) IsRegion(t int) bool {
+	if s.Types != nil {
+		for _, val := range s.Types {
+			if val == t {
+				return true
+			}
+		}
+	}
+	return false
+}

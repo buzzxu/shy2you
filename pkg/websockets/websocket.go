@@ -64,7 +64,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 			switch say.Region {
 			case 1:
 				//tenantId
-				if session.TenantId == say.CompanyId {
+				if say.IsRegion(session.Type) && session.TenantId == say.CompanyId {
 					logger.Infof("tenant: %d ,user: %s ,say: %s", session.TenantId, session.UserId, message)
 					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
@@ -73,7 +73,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 				break
 			case 2:
 				//companyId
-				if session.CompanyId == say.CompanyId {
+				if say.IsRegion(session.Type) && session.CompanyId == say.CompanyId {
 					logger.Infof("company: %d ,user: %s ,say: %s", session.CompanyId, session.UserId, message)
 					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
@@ -82,7 +82,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 				break
 			case 3:
 				//supplierId
-				if session.SupplierId == say.CompanyId {
+				if say.IsRegion(session.Type) && session.SupplierId == say.CompanyId {
 					logger.Infof("supplier: %d ,user: %s ,say: %s", session.SupplierId, session.UserId, message)
 					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
