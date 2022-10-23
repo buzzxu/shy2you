@@ -14,6 +14,7 @@ type (
 		UserId    string      `json:"userId"`
 		Region    int         `json:"region"`
 		Types     []int       `json:"types"`
+		Type      int         `json:"type"`
 		CompanyId int         `json:"companyId"`
 		Data      interface{} `json:"data"`
 	}

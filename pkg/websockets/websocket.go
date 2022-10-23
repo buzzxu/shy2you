@@ -89,7 +89,17 @@ func (s *SessionPool) Say(say *types.Say) error {
 					}
 				}
 				break
+			case 4:
+				//type
+				if say.Type == session.Type {
+					logger.Infof("type: %d ,user: %s ,say: %s", session.SupplierId, session.UserId, message)
+					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
+						return err
+					}
+				}
+				break
 			}
+
 		}
 	}
 	return nil
