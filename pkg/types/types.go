@@ -19,6 +19,11 @@ type (
 		Data      interface{} `json:"data"`
 	}
 
+	InboxDrop struct {
+		UserId string         `json:"userId"`
+		Data   []InboxMessage `json:"data"`
+	}
+
 	InboxMessage struct {
 		Id        string      `json:"id""`
 		UserId    string      `json:"userId"`

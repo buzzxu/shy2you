@@ -36,10 +36,10 @@ func (s *InboxDispatcher) Send(userId, message string) error {
 	return nil
 }
 
-func (s *InboxDispatcher) Dispatch(message *types.InboxMessage) error {
+func (s *InboxDispatcher) Dispatch(drop *types.InboxDrop) error {
 	s.RLock()
 	defer s.RUnlock()
-	data, err := json.Marshal(message)
+	data, err := json.Marshal(drop.Data)
 	if err != nil {
 		return err
 	}
@@ -47,12 +47,12 @@ func (s *InboxDispatcher) Dispatch(message *types.InboxMessage) error {
 		logger.Of("ws").Info("say nothing.")
 		return nil
 	}
-	content := string(data[:])
+	message := string(data[:])
 	for con, session := range s.Sessions {
 		// UserId not null
-		if message.UserId != "" && session.UserId == message.UserId {
-			logger.Infof("user: %s ,message: %s", session.UserId, message)
-			if err := con.WriteMessage(websocket.TextMessage, []byte(content)); err != nil {
+		if drop.UserId != "" && session.UserId == drop.UserId {
+			logger.Infof("user: %s ,message: %s", session.UserId, drop.Data)
+			if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 				return err
 			}
 			break

@@ -49,7 +49,7 @@ func Ping(c echo.Context) error {
 }
 
 func Dispatch(c echo.Context) error {
-	var message types.InboxMessage
+	var message types.InboxDrop
 	if err := c.Bind(&message); err != nil {
 		return c.JSON(200, boystypes.ErrorOf(err))
 	}
