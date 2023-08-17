@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/buzzxu/ironman"
+	"shy2you/pkg/inbox"
 	"shy2you/pkg/types"
 	"shy2you/pkg/websockets"
 	"strconv"
@@ -30,6 +31,17 @@ func GetUserSession(claims *types.Claims) (*websockets.Session, error) {
 			CompanyId:  companyId,
 			SupplierId: supplierId,
 			TenantId:   tenantId,
+		}, nil
+	}
+	return nil, errors.New("not found user in redis")
+}
+
+func GetInboxUser(claims *types.Claims) (*inbox.Session, error) {
+	var opt = GetUser(claims)
+	if opt.IsPresent() {
+		hash := opt.Get().(map[string]string)
+		return &inbox.Session{
+			UserId: hash["id"],
 		}, nil
 	}
 	return nil, errors.New("not found user in redis")

@@ -18,6 +18,22 @@ type (
 		CompanyId int         `json:"companyId"`
 		Data      interface{} `json:"data"`
 	}
+
+	InboxMessage struct {
+		Id        string      `json:"id""`
+		UserId    string      `json:"userId"`
+		Status    int         `json:"status"`
+		ObjId     string      `json:"objId"`
+		Region    string      `json:"region"`
+		BizType   string      `json:"bizType"`
+		Title     string      `json:"title"`
+		Content   string      `json:"content"`
+		Path      string      `json:"path"`
+		Data      interface{} `json:"data"`
+		Time      string      `json:"time"`
+		CreatedAt string      `json:"createdAt"`
+		UpdatedAt string      `json:"updatedAt"`
+	}
 )
 
 func (s *Say) IsRegion(t int) bool {

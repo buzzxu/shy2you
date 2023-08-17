@@ -6,6 +6,7 @@ import (
 	"github.com/buzzxu/ironman/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"shy2you/api/inbox"
 	"shy2you/api/ws"
 	"shy2you/internal/say"
 	"shy2you/pkg/types"
@@ -29,5 +30,9 @@ func Routers(e *echo.Echo) {
 	e.GET("/notify/ws", ws.Notify)
 	e.POST("/notify/say", ws.Say)
 	e.POST("/notify/ping", ws.Ping)
+
+	e.GET("/inbox/ws", inbox.Notify)
+	e.POST("/inbox/dispatch", inbox.Dispatch)
+	e.POST("/notify/ping", inbox.Ping)
 	//e.Use(middleware.JWTWithConfig(jwtConfig))
 }
