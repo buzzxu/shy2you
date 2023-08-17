@@ -33,6 +33,6 @@ func Routers(e *echo.Echo) {
 
 	e.GET("/inbox/ws", inbox.Notify)
 	e.POST("/inbox/dispatch", inbox.Dispatch)
-	e.POST("/notify/ping", inbox.Ping)
+	e.POST("/inbox/ping", inbox.Ping)
 	//e.Use(middleware.JWTWithConfig(jwtConfig))
 }
