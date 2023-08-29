@@ -1,7 +1,6 @@
 package inbox
 
 import (
-	"fmt"
 	boystypes "github.com/buzzxu/boys/types"
 	"github.com/buzzxu/ironman"
 	"github.com/dgrijalva/jwt-go"
@@ -81,6 +80,10 @@ func Notify(c echo.Context) error {
 			}
 			SessionsPool.Lock()
 			SessionsPool.Sessions[ws] = *session
+			ws.SetCloseHandler(func(code int, text string) error {
+				//noting to do
+				return nil
+			})
 			defer func(connection *websocket.Conn) {
 				SessionsPool.Lock()
 				delete(SessionsPool.Sessions, connection)
@@ -102,11 +105,11 @@ func Notify(c echo.Context) error {
 				}
 			}(ws)
 			for {
-				_, msg, err := ws.ReadMessage()
+				_, _, err := ws.ReadMessage()
 				if err != nil {
 					c.Logger().Error(err)
 				}
-				fmt.Println(msg)
+				//noting
 			}
 		}
 
