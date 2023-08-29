@@ -48,7 +48,7 @@ func (s *SessionPool) Say(say *types.Say) error {
 		return err
 	}
 	if data == nil {
-		logger.Of("ws").Info("say nothing.")
+		logger.Info("say nothing.")
 		return nil
 	}
 	message := string(data[:])

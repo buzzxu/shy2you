@@ -4,9 +4,8 @@ go 1.19
 
 require (
 	github.com/buzzxu/boys v0.0.0-20221213154821-1c7c92c0db06
-	github.com/buzzxu/ironman v0.2.8
+	github.com/buzzxu/ironman v0.2.9
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gorilla/websocket v1.5.0
 	github.com/labstack/echo/v4 v4.11.1
 	go.uber.org/zap v1.25.0
@@ -25,6 +24,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/redis/go-redis/v9 v9.1.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.uber.org/atomic v1.11.0 // indirect

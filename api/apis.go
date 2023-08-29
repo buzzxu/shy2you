@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"shy2you/api/inbox"
 	"shy2you/api/ws"
-	"shy2you/internal/say"
+	"shy2you/internal/handlers"
 	"shy2you/pkg/types"
 )
 
@@ -22,7 +22,8 @@ func init() {
 	ironman.DefaultJWTConfig.SigningMethod = conf.ServerConf.Jwt.SigningMethod
 	ironman.DefaultJWTConfig.TokenLookup = "query:" + echo.HeaderAuthorization
 	ironman.DefaultJWTConfig.Claims = &types.Claims{}
-	go say.Start()
+	go handlers.Say()
+	go handlers.Inbox()
 
 }
 func Routers(e *echo.Echo) {

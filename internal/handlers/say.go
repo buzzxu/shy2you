@@ -1,26 +1,20 @@
-package say
+package handlers
 
 import (
 	"context"
 	"encoding/json"
 	"github.com/buzzxu/ironman"
 	"github.com/buzzxu/ironman/logger"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"shy2you/api/ws"
+	"shy2you/pkg/commons"
 	"shy2you/pkg/types"
 )
 
-var topic = "topic:shy2you:notify"
-var group = "jedi"
-
-func init() {
-
-}
-func Start() {
-	statusCmd := ironman.Redis.XGroupCreateMkStream(context.Background(), topic, group, "$")
-	if statusCmd.Err() != nil {
-		return
-	}
+func Say() {
+	var topic = "topic:shy2you:notify"
+	var group = "shy2you"
+	commons.CreateStreamExists(topic, group)
 	for {
 		var ctx = context.Background()
 		logger.Infof("Ready receive new message")
@@ -34,7 +28,7 @@ func Start() {
 		}).Result()
 		if err != nil {
 			logger.Errorf("receive new message error. %s", err.Error())
-			break
+			continue
 		}
 		logger.Infof("receive new message")
 		for _, result := range datas {
@@ -42,7 +36,12 @@ func Start() {
 				messageID := message.ID
 				values := message.Values
 				var say = types.Say{}
-				json.Unmarshal([]byte(values["data"].(string)), &say)
+				err := json.Unmarshal([]byte(values["data"].(string)), &say)
+				if err != nil {
+					logger.Errorf("parser message error: %s , del it", err.Error())
+					ironman.Redis.XDel(ctx, topic, group, messageID)
+					continue
+				}
 				ws.SessionsPool.Say(&say)
 				ironman.Redis.XAck(ctx, topic, group, messageID)
 			}

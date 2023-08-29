@@ -44,7 +44,10 @@ func Ping(c echo.Context) error {
 		return c.JSON(200, boystypes.ErrorOf(err))
 	}
 	userId := strconv.FormatInt(msg.UserId, 10)
-	SessionsPool.Send(userId, "发射成功:"+msg.Context)
+	err := SessionsPool.Send(userId, "发射成功:"+msg.Context)
+	if err != nil {
+		return c.JSON(500, boystypes.ErrorOf(err))
+	}
 	return c.JSON(200, boystypes.ResultOf(200, true))
 }
 
@@ -54,7 +57,10 @@ func Say(c echo.Context) error {
 		return c.JSON(200, boystypes.ErrorOf(err))
 	}
 	c.Logger().Infof(" receive message userId: %s", say.UserId)
-	SessionsPool.Say(&say)
+	err := SessionsPool.Say(&say)
+	if err != nil {
+		return c.JSON(500, boystypes.ErrorOf(err))
+	}
 	return c.JSON(200, boystypes.ResultOf(200, true))
 }
 
@@ -81,7 +87,12 @@ func Notify(c echo.Context) error {
 				SessionsPool.Unlock()
 			}(ws)
 			SessionsPool.Unlock()
-			defer ws.Close()
+			defer func(ws *websocket.Conn) {
+				err := ws.Close()
+				if err != nil {
+					c.Logger().Error(err)
+				}
+			}(ws)
 			for {
 				_, msg, err := ws.ReadMessage()
 				if err != nil {

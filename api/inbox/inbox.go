@@ -44,7 +44,10 @@ func Ping(c echo.Context) error {
 		return c.JSON(200, boystypes.ErrorOf(err))
 	}
 	userId := strconv.FormatInt(msg.UserId, 10)
-	SessionsPool.Send(userId, "发射成功:"+msg.Context)
+	err := SessionsPool.Send(userId, "发射成功:"+msg.Context)
+	if err != nil {
+		return c.JSON(500, boystypes.ErrorOf(err))
+	}
 	return c.JSON(200, boystypes.ResultOf(200, true))
 }
 
@@ -54,7 +57,10 @@ func Dispatch(c echo.Context) error {
 		return c.JSON(200, boystypes.ErrorOf(err))
 	}
 	c.Logger().Infof(" receive message userId: %s", message.UserId)
-	SessionsPool.Dispatch(&message)
+	err := SessionsPool.Dispatch(&message)
+	if err != nil {
+		return c.JSON(500, boystypes.ErrorOf(err))
+	}
 	return c.JSON(200, boystypes.ResultOf(200, true))
 }
 
@@ -80,8 +86,21 @@ func Notify(c echo.Context) error {
 				delete(SessionsPool.Sessions, connection)
 				SessionsPool.Unlock()
 			}(ws)
+			//获取最新的未读消息
+			go inbox.FetchLatestUnRead(session.UserId, func(inboxDrop *types.InboxDrop) {
+				err := SessionsPool.Dispatch(inboxDrop)
+				if err != nil {
+					return
+				}
+			})
 			SessionsPool.Unlock()
-			defer ws.Close()
+
+			defer func(ws *websocket.Conn) {
+				err := ws.Close()
+				if err != nil {
+					c.Logger().Error(err)
+				}
+			}(ws)
 			for {
 				_, msg, err := ws.ReadMessage()
 				if err != nil {

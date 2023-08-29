@@ -16,6 +16,10 @@ type Session struct {
 	UserId string
 }
 
+func init() {
+
+}
+
 func New() *InboxDispatcher {
 	return &InboxDispatcher{
 		Sessions: make(map[*websocket.Conn]Session),
@@ -44,7 +48,7 @@ func (s *InboxDispatcher) Dispatch(drop *types.InboxDrop) error {
 		return err
 	}
 	if data == nil {
-		logger.Of("ws").Info("say nothing.")
+		logger.Infof("inbox nothing.")
 		return nil
 	}
 	message := string(data[:])

@@ -15,3 +15,5 @@ logger:
   loggers:
     ws:
       file: ws.log
+    inbox:
+      file: inbox.log
