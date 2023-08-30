@@ -17,7 +17,6 @@ func Say() {
 	var ctx = context.Background()
 	commons.CreateStreamExists(ctx, topic, group)
 	for {
-		logger.Infof("Ready receive new message")
 		datas, err := ironman.Redis.XReadGroup(ctx, &redis.XReadGroupArgs{
 			Group:    group,
 			Consumer: "say",
@@ -30,7 +29,6 @@ func Say() {
 			logger.Errorf("receive new message error. %s", err.Error())
 			continue
 		}
-		logger.Infof("receive new message")
 		for _, result := range datas {
 			for _, message := range result.Messages {
 				messageID := message.ID

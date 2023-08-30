@@ -17,7 +17,6 @@ func Inbox() {
 	var ctx = context.Background()
 	commons.CreateStreamExists(ctx, topic, group)
 	for {
-		logger.Infof("Ready receive new inbox message")
 		datas, err := ironman.Redis.XReadGroup(ctx, &redis.XReadGroupArgs{
 			Group:    group,
 			Consumer: "inbox",
@@ -30,7 +29,6 @@ func Inbox() {
 			logger.Errorf("receive new message error. %s", err.Error())
 			continue
 		}
-		logger.Infof("receive new message")
 		for i := 0; i < len(datas); i++ {
 			messages := datas[i].Messages
 			for j := 0; j < len(messages); j++ {
