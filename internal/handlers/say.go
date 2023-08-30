@@ -14,9 +14,9 @@ import (
 func Say() {
 	var topic = "topic:shy2you:notify"
 	var group = "shy2you"
-	commons.CreateStreamExists(topic, group)
+	var ctx = context.Background()
+	commons.CreateStreamExists(ctx, topic, group)
 	for {
-		var ctx = context.Background()
 		logger.Infof("Ready receive new message")
 		datas, err := ironman.Redis.XReadGroup(ctx, &redis.XReadGroupArgs{
 			Group:    group,
@@ -42,7 +42,12 @@ func Say() {
 					ironman.Redis.XDel(ctx, topic, group, messageID)
 					continue
 				}
-				ws.SessionsPool.Say(&say)
+				err = ws.SessionsPool.Say(&say)
+				if err != nil {
+					logger.Errorf("message send error: %s , del it", err.Error())
+					ironman.Redis.XDel(ctx, topic, group, messageID)
+					continue
+				}
 				ironman.Redis.XAck(ctx, topic, group, messageID)
 			}
 		}

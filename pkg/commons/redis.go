@@ -6,8 +6,8 @@ import (
 	"github.com/buzzxu/ironman/logger"
 )
 
-func CreateStreamExists(topic, group string) {
-	exits, err := ironman.Redis.Exists(context.Background(), topic).Result()
+func CreateStreamExists(ctx context.Context, topic, group string) {
+	exits, err := ironman.Redis.Exists(ctx, topic).Result()
 	if err != nil {
 		return
 	}

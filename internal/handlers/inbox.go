@@ -14,9 +14,9 @@ import (
 func Inbox() {
 	var topic = "topic:shy2you:inbox"
 	var group = "shy2you"
-	commons.CreateStreamExists(topic, group)
+	var ctx = context.Background()
+	commons.CreateStreamExists(ctx, topic, group)
 	for {
-		var ctx = context.Background()
 		logger.Infof("Ready receive new inbox message")
 		datas, err := ironman.Redis.XReadGroup(ctx, &redis.XReadGroupArgs{
 			Group:    group,
@@ -31,8 +31,10 @@ func Inbox() {
 			continue
 		}
 		logger.Infof("receive new message")
-		for _, result := range datas {
-			for _, message := range result.Messages {
+		for i := 0; i < len(datas); i++ {
+			messages := datas[i].Messages
+			for j := 0; j < len(messages); j++ {
+				message := messages[j]
 				messageID := message.ID
 				values := message.Values
 				var inboxDrop = types.InboxDrop{}
@@ -45,7 +47,8 @@ func Inbox() {
 				err = inbox.SessionsPool.Dispatch(&inboxDrop)
 				if err != nil {
 					logger.Errorf("message send error: %s , del it", err.Error())
-					return
+					ironman.Redis.XDel(ctx, topic, group, messageID)
+					continue
 				}
 				ironman.Redis.XAck(ctx, topic, group, messageID)
 			}

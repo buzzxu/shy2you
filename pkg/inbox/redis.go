@@ -40,10 +40,11 @@ func FetchLatestUnRead(userId string, send func(inboxDrop *types.InboxDrop)) {
 	if len(messages) > 0 {
 		send(&types.InboxDrop{UserId: userId, Data: messages})
 	}
-	//
+	//清理过期消息
 	cleanExpireMessage(ctx, userId)
 }
 
+// 转换消息
 func convertInboxMessage(data map[string]string) *types.InboxMessage {
 	var message types.InboxMessage
 	var err error
@@ -71,6 +72,7 @@ func convertInboxMessage(data map[string]string) *types.InboxMessage {
 	return &message
 }
 
+// 清理过期消息
 func cleanExpireMessage(ctx context.Context, userId string) {
 	// 获取当前时间
 	now := time.Now()
