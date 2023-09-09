@@ -111,6 +111,18 @@ func Notify(c echo.Context) error {
 					c.Logger().Error(err)
 				}
 			}(ws)
+			go func() {
+				ticker := time.NewTicker(30 * time.Second)
+				defer ticker.Stop()
+				for {
+					select {
+					case <-ticker.C:
+						if err := ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+							return
+						}
+					}
+				}
+			}()
 			for {
 				_, _, err := ws.ReadMessage()
 				if err != nil {

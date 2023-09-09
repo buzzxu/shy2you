@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"fmt"
 	boystypes "github.com/buzzxu/boys/types"
 	"github.com/buzzxu/ironman"
 	"github.com/dgrijalva/jwt-go"
@@ -87,12 +86,6 @@ func Notify(c echo.Context) error {
 				delete(SessionsPool.Sessions, connection)
 				SessionsPool.Unlock()
 			}(ws)
-			pongWait := 10 * time.Second
-			ws.SetReadDeadline(time.Now().Add(pongWait))
-			ws.SetPongHandler(func(string) error {
-				ws.SetReadDeadline(time.Now().Add(pongWait))
-				return nil
-			})
 			SessionsPool.Unlock()
 			defer func(ws *websocket.Conn) {
 				err := ws.Close()
@@ -100,37 +93,29 @@ func Notify(c echo.Context) error {
 					c.Logger().Error(err)
 				}
 			}(ws)
-			go pingLoop(ws, pongWait)
+			go func() {
+				ticker := time.NewTicker(30 * time.Second)
+				defer ticker.Stop()
+				for {
+					select {
+					case <-ticker.C:
+						if err := ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+							return
+						}
+					}
+				}
+			}()
 			for {
-				_, msg, err := ws.ReadMessage()
+				_, _, err := ws.ReadMessage()
 				if err != nil {
 					c.Logger().Error(err)
 					ws.Close()
 					break
 				}
-				fmt.Println(msg)
 			}
 		}
 
 	}
 
 	return nil
-}
-
-func pingLoop(conn *websocket.Conn, pongWait time.Duration) {
-	pingPeriod := (pongWait * 9) / 10
-	pingTicker := time.NewTicker(pingPeriod)
-	defer func() {
-		pingTicker.Stop()
-		conn.Close()
-	}()
-
-	for {
-		select {
-		case <-pingTicker.C:
-			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				return
-			}
-		}
-	}
 }
