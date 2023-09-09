@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	boystypes "github.com/buzzxu/boys/types"
 	"github.com/buzzxu/ironman"
 	"github.com/dgrijalva/jwt-go"
@@ -93,11 +94,15 @@ func Notify(c echo.Context) error {
 					c.Logger().Error(err)
 				}
 			}(ws)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
 			go func() {
-				ticker := time.NewTicker(30 * time.Second)
+				ticker := time.NewTicker(15 * time.Second)
 				defer ticker.Stop()
 				for {
 					select {
+					case <-ctx.Done():
+						return
 					case <-ticker.C:
 						if err := ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 							return

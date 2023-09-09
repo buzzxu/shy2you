@@ -1,11 +1,13 @@
 package inbox
 
 import (
+	"context"
 	boystypes "github.com/buzzxu/boys/types"
 	"github.com/buzzxu/ironman"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/websocket"
 	echo "github.com/labstack/echo/v4"
+	"net"
 	"net/http"
 	"shy2you/pkg/auth"
 	"shy2you/pkg/inbox"
@@ -90,12 +92,6 @@ func Notify(c echo.Context) error {
 				delete(SessionsPool.Sessions, connection)
 				SessionsPool.Unlock()
 			}(ws)
-			pongWait := 10 * time.Second
-			ws.SetReadDeadline(time.Now().Add(pongWait))
-			ws.SetPongHandler(func(string) error {
-				ws.SetReadDeadline(time.Now().Add(pongWait))
-				return nil
-			})
 			//获取最新的未读消息
 			go inbox.FetchLatestUnRead(session.UserId, func(inboxDrop *types.InboxDrop) {
 				err := SessionsPool.Dispatch(inboxDrop)
@@ -111,13 +107,18 @@ func Notify(c echo.Context) error {
 					c.Logger().Error(err)
 				}
 			}(ws)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
 			go func() {
-				ticker := time.NewTicker(30 * time.Second)
+				ticker := time.NewTicker(15 * time.Second)
 				defer ticker.Stop()
 				for {
 					select {
+					case <-ctx.Done():
+						return
 					case <-ticker.C:
 						if err := ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+							c.Logger().Errorf("Inbox write ping message error: %v", err)
 							return
 						}
 					}
@@ -126,9 +127,15 @@ func Notify(c echo.Context) error {
 			for {
 				_, _, err := ws.ReadMessage()
 				if err != nil {
-					c.Logger().Error(err)
-					ws.Close()
-					break
+					netErr, ok := err.(net.Error)
+					if ok && netErr.Timeout() {
+						c.Logger().Errorf("Read message timeout: %v", err)
+						continue
+					} else {
+						c.Logger().Errorf("Read message error: %v", err)
+						ws.Close()
+						break
+					}
 				}
 				//noting
 			}
