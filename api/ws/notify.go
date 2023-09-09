@@ -12,6 +12,7 @@ import (
 	"shy2you/pkg/types"
 	"shy2you/pkg/websockets"
 	"strconv"
+	"time"
 )
 
 var (
@@ -86,6 +87,12 @@ func Notify(c echo.Context) error {
 				delete(SessionsPool.Sessions, connection)
 				SessionsPool.Unlock()
 			}(ws)
+			pongWait := 10 * time.Second
+			ws.SetReadDeadline(time.Now().Add(pongWait))
+			ws.SetPongHandler(func(string) error {
+				ws.SetReadDeadline(time.Now().Add(pongWait))
+				return nil
+			})
 			SessionsPool.Unlock()
 			defer func(ws *websocket.Conn) {
 				err := ws.Close()
@@ -93,10 +100,13 @@ func Notify(c echo.Context) error {
 					c.Logger().Error(err)
 				}
 			}(ws)
+			go pingLoop(ws, pongWait)
 			for {
 				_, msg, err := ws.ReadMessage()
 				if err != nil {
 					c.Logger().Error(err)
+					ws.Close()
+					break
 				}
 				fmt.Println(msg)
 			}
@@ -105,4 +115,22 @@ func Notify(c echo.Context) error {
 	}
 
 	return nil
+}
+
+func pingLoop(conn *websocket.Conn, pongWait time.Duration) {
+	pingPeriod := (pongWait * 9) / 10
+	pingTicker := time.NewTicker(pingPeriod)
+	defer func() {
+		pingTicker.Stop()
+		conn.Close()
+	}()
+
+	for {
+		select {
+		case <-pingTicker.C:
+			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
+		}
+	}
 }

@@ -11,6 +11,7 @@ import (
 	"shy2you/pkg/inbox"
 	"shy2you/pkg/types"
 	"strconv"
+	"time"
 )
 
 var (
@@ -89,6 +90,12 @@ func Notify(c echo.Context) error {
 				delete(SessionsPool.Sessions, connection)
 				SessionsPool.Unlock()
 			}(ws)
+			pongWait := 10 * time.Second
+			ws.SetReadDeadline(time.Now().Add(pongWait))
+			ws.SetPongHandler(func(string) error {
+				ws.SetReadDeadline(time.Now().Add(pongWait))
+				return nil
+			})
 			//获取最新的未读消息
 			go inbox.FetchLatestUnRead(session.UserId, func(inboxDrop *types.InboxDrop) {
 				err := SessionsPool.Dispatch(inboxDrop)
@@ -108,6 +115,8 @@ func Notify(c echo.Context) error {
 				_, _, err := ws.ReadMessage()
 				if err != nil {
 					c.Logger().Error(err)
+					ws.Close()
+					break
 				}
 				//noting
 			}
