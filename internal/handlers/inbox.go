@@ -26,7 +26,7 @@ func Inbox() {
 			NoAck:    false,
 		}).Result()
 		if err != nil {
-			logger.Errorf("receive new message error. %s", err.Error())
+			logger.Errorf("inbox receive new message error. %s", err.Error())
 			continue
 		}
 		for i := 0; i < len(datas); i++ {
@@ -35,8 +35,15 @@ func Inbox() {
 				message := messages[j]
 				messageID := message.ID
 				values := message.Values
+				logger.Infof("inbox receive new message[%s]: %s", messageID, values)
+				data := values["data"]
+				if values == nil || data == nil {
+					logger.Errorf("receive new message[%s] data is null, ack it", messageID)
+					ironman.Redis.XAck(ctx, topic, group, messageID)
+					continue
+				}
 				var inboxDrop = types.InboxDrop{}
-				err := json.Unmarshal([]byte(values["data"].(string)), &inboxDrop)
+				err := json.Unmarshal([]byte(data.(string)), &inboxDrop)
 				if err != nil {
 					logger.Errorf("parser message error: %s , del it", err.Error())
 					ironman.Redis.XDel(ctx, topic, group, messageID)
