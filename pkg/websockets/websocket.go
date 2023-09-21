@@ -2,7 +2,6 @@ package websockets
 
 import (
 	"encoding/json"
-	"github.com/buzzxu/ironman/logger"
 	"github.com/gorilla/websocket"
 	"shy2you/pkg/types"
 	"sync"
@@ -48,14 +47,12 @@ func (s *SessionPool) Say(say *types.Say) error {
 		return err
 	}
 	if data == nil {
-		logger.Info("say nothing.")
 		return nil
 	}
 	message := string(data[:])
 	for con, session := range s.Sessions {
 		// UserId not null
 		if say.UserId != "" && session.UserId == say.UserId {
-			logger.Infof("user: %s ,say: %s", session.UserId, message)
 			if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 				return err
 			}
@@ -65,7 +62,6 @@ func (s *SessionPool) Say(say *types.Say) error {
 			case 1:
 				//tenantId
 				if say.IsRegion(session.Type) && session.TenantId == say.CompanyId {
-					logger.Infof("tenant: %d ,user: %s ,say: %s", session.TenantId, session.UserId, message)
 					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
 					}
@@ -74,7 +70,6 @@ func (s *SessionPool) Say(say *types.Say) error {
 			case 2:
 				//companyId
 				if say.IsRegion(session.Type) && session.CompanyId == say.CompanyId {
-					logger.Infof("company: %d ,user: %s ,say: %s", session.CompanyId, session.UserId, message)
 					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
 					}
@@ -83,7 +78,6 @@ func (s *SessionPool) Say(say *types.Say) error {
 			case 3:
 				//supplierId
 				if say.IsRegion(session.Type) && session.SupplierId == say.CompanyId {
-					logger.Infof("supplier: %d ,user: %s ,say: %s", session.SupplierId, session.UserId, message)
 					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
 					}
@@ -91,16 +85,15 @@ func (s *SessionPool) Say(say *types.Say) error {
 				break
 			case 4:
 				//type
-				if say.Type == session.Type && say.IsRegion(session.Type) {
-					logger.Infof("type: %d ,user: %s ,say: %s", session.Type, session.UserId, message)
+				if (say.Type > 0 && say.Type == session.Type) || say.IsRegion(session.Type) {
 					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
 					}
 				}
 				break
 			default:
+				//默认只通过type
 				if (say.Type > 0 && say.Type == session.Type) || say.IsRegion(session.Type) {
-					logger.Infof("type: %d ,user: %s ,say: %s", session.Type, session.UserId, message)
 					if err := con.WriteMessage(websocket.TextMessage, []byte(message)); err != nil {
 						return err
 					}
