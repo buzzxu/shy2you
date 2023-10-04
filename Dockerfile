@@ -1,4 +1,4 @@
-FROM golang:bullseye as build
+FROM golang:bookworm as build
 
 WORKDIR $GOPATH/src/shy2you
 ADD . $GOPATH/src/shy2you
@@ -16,7 +16,7 @@ RUN cd && \
     mv app  /opt/app;
 
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 MAINTAINER buzzxu <downloadxu@163.com>
 
