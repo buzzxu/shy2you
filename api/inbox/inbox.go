@@ -3,8 +3,8 @@ package inbox
 import (
 	"context"
 	boystypes "github.com/buzzxu/boys/types"
-	"github.com/buzzxu/ironman"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/buzzxu/ironman/jwtt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 	echo "github.com/labstack/echo/v4"
 	"net"
@@ -67,7 +67,7 @@ func Dispatch(c echo.Context) error {
 }
 
 func Notify(c echo.Context) error {
-	token, err := ironman.ParserTokenUnverified(c, echo.HeaderAuthorization, "")
+	token, err := jwtt.ParserTokenUnverified(c, echo.HeaderAuthorization)
 	if err != nil {
 		return err
 	}

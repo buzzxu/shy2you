@@ -1,6 +1,10 @@
 package types
 
-import "github.com/dgrijalva/jwt-go"
+import (
+	"errors"
+	"github.com/golang-jwt/jwt/v5"
+	"time"
+)
 
 type (
 	// JWT 信息
@@ -8,7 +12,7 @@ type (
 		Type     int    `json:"type"`
 		UserName string `json:"userName"`
 		Region   int    `json:"region"`
-		jwt.StandardClaims
+		jwt.RegisteredClaims
 	}
 	Say struct {
 		UserId    string      `json:"userId"`
@@ -25,7 +29,7 @@ type (
 	}
 
 	InboxMessage struct {
-		Id        string      `json:"id""`
+		Id        string      `json:"id"`
 		UserId    int         `json:"userId"`
 		Status    int         `json:"status"`
 		ObjId     string      `json:"objId"`
@@ -40,6 +44,15 @@ type (
 		UpdatedAt string      `json:"updatedAt"`
 	}
 )
+
+func (c Claims) Validate() error {
+	// 扩展验证逻辑
+
+	if c.ExpiresAt != nil && time.Now().After(c.ExpiresAt.Time) {
+		return errors.New("token is expired")
+	}
+	return nil
+}
 
 func (s *Say) IsRegion(t int) bool {
 	if s.Types != nil {
