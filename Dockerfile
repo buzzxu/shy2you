@@ -16,7 +16,7 @@ RUN cd && \
     mv app  /opt/app;
 
 
-FROM debian:bookworm-slim
+FROM debian:bookworm
 
 MAINTAINER buzzxu <downloadxu@163.com>
 
