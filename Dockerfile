@@ -46,7 +46,7 @@ ENV TZ Asia/Shanghai
 ENV LANG C.UTF-8
 
 EXPOSE 3000
-CMD ["./app"]
+#CMD ["./app"]
 #ENTRYPOINT ["./app"]
 #ENTRYPOINT ["/bin/bash","run.sh"]
 
