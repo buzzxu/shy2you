@@ -3,7 +3,7 @@ FROM golang:bookworm as build
 WORKDIR $GOPATH/src/shy2you
 ADD . $GOPATH/src/shy2you
 ENV GO111MODULE=on
-ENV GOPROXY=https://goproxy.io
+ENV GOPROXY=https://goproxy.io,direct
 
 
 RUN apt-get update && \
