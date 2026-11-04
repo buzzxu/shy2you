@@ -1,4 +1,4 @@
-FROM golang:bookworm as build
+FROM golang:1.27.3-bookworm as build
 
 WORKDIR $GOPATH/src/shy2you
 ADD . $GOPATH/src/shy2you
